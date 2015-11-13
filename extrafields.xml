@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension group="system" method="upgrade" type="plugin" version="3.3.0">
+	<name>plg_system_extrafields</name>
+	<creationDate>20/10/2015</creationDate>
+	<author>Rene Bentes Pinto</author>
+	<authorEmail>renebentes@yahoo.com.br</authorEmail>
+	<authorUrl>http://renebentes.github.io</authorUrl>
+	<copyright>Copyright (C) 2015 Rene Bentes Pinto, Inc. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.3.0</version>
+	<description>PLG_SYSTEM_EXTRAFIELDS_XML_DESCRIPTION</description>
+	<scriptfile>script.php</scriptfile>
+	<files>
+		<folder>fields</folder>
+		<folder>forms</folder>
+		<folder>assets</folder>
+		<filename>CHANGELOG.md</filename>
+		<filename>LICENSE</filename>
+		<filename>README.md</filename>
+		<filename plugin="extrafields">extrafields.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages folder="language">
+		<language tag="pt-BR">pt-BR/pt-BR.plg_system_extrafields.ini</language>
+		<language tag="pt-BR">pt-BR/pt-BR.plg_system_extrafields.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+    </fields>
+	</config>
+</extension>

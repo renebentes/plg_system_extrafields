@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+  <!-- Necessary to store data -->
+  <fields name="attribs">
+    <fieldset
+      name="extrafields"
+      label="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELDSET_EXTRAFIELDS_LABEL"
+      description="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELDSET_EXTRAFIELDS_DESC"
+    >
+      <field
+        name="subtitle"
+        type="text"
+        label="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_SUBTITLE_LABEL"
+        description="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_SUBTITLE_DESC"
+        class="input-xxlarge input-large-text"
+        maxlength="150"
+      />
+    </fieldset>
+
+    <fieldset
+      name="photos"
+      label="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELDSET_PHOTOS_LABEL"
+      description="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELDSET_PHOTOS_DESC"
+      addrulepath="/plugins/system/extrafields/rules"
+      addfieldpath="/plugins/system/extrafields/fields"
+    >
+      <field
+        name="photo"
+        type="upload"
+        label="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_PHOTO_LABEL"
+        description="PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_PHOTO_DESC"
+        hidden="true"
+        multiple="true"
+        maxfiles="3"
+      />
+    </fieldset>
+  </fields>
+</form>
