@@ -18,9 +18,9 @@ use Joomla\Registry\Registry;
 /**
  * Extrafields System plugin
  *
- * @package    Joomla.Plugin
- * @subpackage System.Extrafields
- * @since      0.1.0
+ * @package     Joomla.Plugin
+ * @subpackage  System.Extrafields
+ * @since       0.1.0
  */
 class PlgSystemExtrafields extends JPlugin
 {
@@ -36,12 +36,12 @@ class PlgSystemExtrafields extends JPlugin
 	 * Method called before a JForm is rendered. It can be used to modify the JForm
 	 * object in memory before rendering.
 	 *
-	 * @param  JForm  $form The form to be altered.
-	 * @param  object $data An object containing the data for the form.
+	 * @param   JForm   $form  The form to be altered.
+	 * @param   object  $data  An object containing the data for the form.
 	 *
-	 * @return boolean True on success, false otherwise
+	 * @return  boolean        True on success, false otherwise
 	 *
-	 * @since  0.1.0
+	 * @since   0.1.0
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
@@ -155,7 +155,12 @@ class PlgSystemExtrafields extends JPlugin
 		return true;
 	}
 
-	public function onAjaxExtrafieldsUpload()
+	/**
+	 * Method for upload and show files on server
+	 *
+	 * @return  JSON            The json result
+	 */
+	public function onAjaxExtrafields()
 	{
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.folder');
@@ -165,25 +170,48 @@ class PlgSystemExtrafields extends JPlugin
 		$response    = array();
 		$user        = JFactory::getUser();
 		$mediaHelper = new JHelperMedia;
+		$paramName   = $app->input->get('paramName', 'files');
 
 		// Check for request forgeries.
 		if (!JSession::checkToken('request'))
 		{
-			$response['files'] = array(
+			$response[$paramName] = array(
 				'error'  => JText::_('JINVALID_TOKEN')
 			);
 
-			return json_encode($response);
+			echo json_encode($response);
+			return;
 		}
+
+		switch ($app->input->server->getString('REQUEST_METHOD', 'GET'))
+		{
+			case 'OPTIONS':
+      case 'HEAD':
+      	$this->_head($app->input);
+        break;
+      case 'GET':
+        $this->_get($app->input);
+        break;
+      case 'PATCH':
+      case 'PUT':
+      case 'POST':
+        $this->_post($app->input);
+        break;
+      case 'DELETE':
+        $this->_delete();
+        break;
+      default:
+        header('HTTP/1.1 405 Method Not Allowed');
+		}
+
+		return;
+
 
 		JLog::addLogger(array('text_file' => 'upload.error.php'), JLog::ALL, array('upload'));
 
 		// Get some data from the request.
-		$files   = $app->input->files->get('files', '', 'array');
-		$picture = $app->input->post->get('picture', '', 'array');
-
-		$response['files'] = $files;
-		return json_encode($response);
+		$files   = $app->input->files->get($paramName, '', 'array');
+		//$picture = $app->input->post->get('picture', '', 'array');
 
 		foreach ($files as $file)
 		{
@@ -384,8 +412,39 @@ class PlgSystemExtrafields extends JPlugin
 		}
 	}
 
-	private function _upload($value='')
+	/**
+	 * Set headers to page
+	 *
+	 * @param   JInput  $input  The JInput object
+	 *
+	 * @return  void
+	 *
+	 * @since   0.3.0
+	 */
+	private function _head(JInput $input)
 	{
-		# code...
+		header('Pragma: no-cache');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Content-Disposition: inline; filename="files.json"');
+    header('X-Content-Type-Options: nosniff');
+    header('Vary: Accept');
+    if (strpos($input->server->getString('HTTP_ACCEPT', ''), 'application/json') !== false)
+    {
+        header('Content-type: application/json');
+    } else {
+        header('Content-type: text/plain');
+    }
+	}
+
+	private function _get(JInput $input)
+	{
+		echo json_encode($input->get('paramName'));
+		return;
+	}
+
+	private function _post(JInput $input)
+	{
+		echo json_encode($input->get('paramName'));
+		return;
 	}
 }

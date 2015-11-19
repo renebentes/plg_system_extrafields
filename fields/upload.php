@@ -161,9 +161,10 @@ class JFormFieldUpload extends JFormFieldFile
   	$script[] = '    \'use strict\';';
   	$script[] = '';
   	$script[] = '    $(\'#item-form\').fileupload({';
-    $script[] = '      url: \'index.php?option=com_ajax&group=system&plugin=extrafieldsUpload&format=json\',';
+    $script[] = '      url: \'index.php?option=com_ajax&group=system&plugin=extrafields&format=json\',';
     $script[] = '      maxFileSize: ' . $params->get('upload_maxsize', 0) * 1024 * 1024 . ',';
   	$script[] = '      maxNumberOfFiles: ' . $this->maxFiles . ',';
+  	$script[] = '      paramName: \''. $this->fieldname . '[]\',';
     $script[] = '      disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent)';
   	$script[] = '    }).bind(\'fileuploadsubmit\', function(e, data) {';
     $script[] = '      var inputs = data.context.find(\':input\');';
@@ -173,7 +174,10 @@ class JFormFieldUpload extends JFormFieldFile
     $script[] = '      }';
     $script[] = '';
     $script[] = '      data.formData = inputs.serializeArray();';
-  	$script[] = '    });';
+    $script[] = '      console.log(data);';
+  	$script[] = '    }).bind(\'fileuploaddone\', function(e, data) {';
+  	$script[] = '      console.log(data);';
+		$script[] = '    });';
 		$script[] = '';
 		$script[] = '    // Enable iframe cross-domain access via redirect option:';
 		$script[] = '    $(\'#item-form\').fileupload(';
@@ -189,11 +193,11 @@ class JFormFieldUpload extends JFormFieldFile
 		$script[] = '    $(\'#item-form\').addClass(\'fileupload-processing\');';
 		$script[] = '';
 		$script[] = '    $.ajax({';
-		$script[] = '      url: \'index.php?option=com_ajax&plugin=getFiles\',';
+		$script[] = '      url: $(\'#item-form\').fileupload(\'option\', \'url\'),';
 		$script[] = '      dataType: \'json\',';
 		$script[] = '      data: {';
 		$script[] = '        content_id: ' . $app->input->get('id', 0) . ',';
-		// $script[] = '        ' . JSession::getFormToken() . ': 1';
+		$script[] = '        ' . JSession::getFormToken() . ': 1';
 		$script[] = '      },';
 		$script[] = '      context: $(\'#item-form\')[0]';
 		$script[] = '    }).always(function() {';
@@ -202,7 +206,7 @@ class JFormFieldUpload extends JFormFieldFile
 		$script[] = '      $(this).fileupload(\'option\', \'done\')';
 		$script[] = '        .call(this, $.Event(\'done\'), { result: result });';
 		$script[] = '';
-		$script[] = '      var sortableList = new $.JSortableList(\'#' . $this->name . 'List tbody\', \'item-form\', \'asc\', \'index.php?option=com_ajax&plugin=saveOrder\', \'\', \'\');';
+		$script[] = '      var sortableList = new $.JSortableList(\'#' . $this->fieldname . 'List tbody\', \'item-form\', \'asc\', \'index.php?option=com_ajax&plugin=saveOrder\', \'\', \'\');';
 		$script[] = '    });';
 		$script[] = '  });';
 
@@ -233,7 +237,7 @@ class JFormFieldUpload extends JFormFieldFile
     $html[] = '  <div class="span7">';
     $html[] = '    <span class="btn btn-default btn-small fileinput-button">';
     $html[] = '      <span class="icon-plus"></span>' . JText::_('PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_ADD_FILES_LABEL');
-    $html[] = '        <input type="file" name="' . $this->name . '" id="' . $this->id . '"' . $accept . $disabled . $autofocus . $multiple . '>';
+    $html[] = '        <input type="file" name="' . $this->fieldname . '[]" id="' . $this->id . '"' . $accept . $disabled . $autofocus . $multiple . '>';
     $html[] = '    </span>';
     $html[] = '    <button type="submit" class="btn btn-success btn-small start">';
     $html[] = '      <span class="icon-upload"></span>' . JText::_('JTOOLBAR_UPLOAD');
@@ -282,9 +286,10 @@ class JFormFieldUpload extends JFormFieldFile
 		$html[] = '    </td>';
 		$html[] = '    <td><span class="preview"></span></td>';
 		$html[] = '    <td class="nowrap">';
-		$html[] = '      <p class="name"><input type="text" name="picture[title]" value="{%=file.name%}" class="span6" placeholder="' . JText::_('PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_TITLE_LABEL') . '"></p>';
-		$html[] = '      <p class="description"><textarea name="picture[description]" cols="30" rows="3" class="span6" placeholder="' . JText::_('PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_DESCRIPTION_LABEL') . '"></textarea></p>';
-		$html[] = '      <input type="hidden" name="picture[content_id]" value="' . $content_id . '">';
+		$html[] = '      <p class="name"><input type="text" name="' . $this->fieldname . '[title]" value="{%=file.name%}" class="span6" placeholder="' . JText::_('PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_TITLE_LABEL') . '"></p>';
+		$html[] = '      <p class="description"><textarea name="' . $this->fieldname . '[description]" cols="30" rows="3" class="span6" placeholder="' . JText::_('PLG_SYSTEM_EXTRAFIELDS_ARTICLE_FIELD_DESCRIPTION_LABEL') . '"></textarea></p>';
+		$html[] = '      <input type="hidden" name="' . $this->fieldname . '[content_id]" value="' . $content_id . '">';
+		$html[] = '      <input type="hidden" name="paramName" value="' . $this->fieldname . '[]">';
 		$html[] = '      ' . JHtml::_('form.token');
 		$html[] = '      <strong class="error text-danger"></strong>';
 		$html[] = '    </td>';
@@ -294,7 +299,7 @@ class JFormFieldUpload extends JFormFieldFile
 		$html[] = '    </td>';
 		$html[] = '    <td class="nowrap">';
 		$html[] = '    {% if (!i && !o.options.autoUpload) { %}';
-		$html[] = '      <button class="btn btn-sucess start" disabled>';
+		$html[] = '      <button class="btn btn-success start" disabled>';
 		$html[] = '        <span class="icon-upload"></span>' . JText::_('JTOOLBAR_UPLOAD');
 		$html[] = '      </button>';
 		$html[] = '    {% } %}';
@@ -321,8 +326,8 @@ class JFormFieldUpload extends JFormFieldFile
 		$html[] = '    </td>';
 		$html[] = '    <td>';
     $html[] = '      <span class="preview">';
-		$html[] = '        <a href="<?php echo $imageUrl; ?>/{%=file.filename%}" title="{%=file.title%}" download="{%=file.filename%}">';
-		$html[] = '          <img src="<?php echo $imageUrl; ?>/thumbnails/{%=file.filename%}">';
+		$html[] = '        <a href="' . $imageUrl . '/{%=file.filename%}" title="{%=file.title%}" download="{%=file.filename%}">';
+		$html[] = '          <img src="' . $imageUrl . '/thumbnails/{%=file.filename%}">';
 		$html[] = '        </a>';
     $html[] = '        {% if (file.thumbnailUrl) { %}';
     $html[] = '          <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>';

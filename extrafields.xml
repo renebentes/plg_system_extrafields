@@ -11,9 +11,9 @@
 	<description>PLG_SYSTEM_EXTRAFIELDS_XML_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
 	<files>
-		<folder>fields</folder>
-		<folder>forms</folder>
 		<folder>assets</folder>
+    <folder>fields</folder>
+    <folder>forms</folder>
 		<filename>CHANGELOG.md</filename>
 		<filename>LICENSE</filename>
 		<filename>README.md</filename>
